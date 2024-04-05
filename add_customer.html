@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Add Customer</title>
+    <!-- Bootstrap CSS -->
+    <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        .container {
+            margin-top: 50px;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <h2 class="text-center">Add Customer</h2>
+        <form id="addCustomerForm">
+            <div class="form-group">
+                <label for="uuid">UUID:</label>
+                <input type="text" class="form-control" id="uuid" placeholder="Enter uuid" required>
+            </div>
+            <div class="form-group">
+                <label for="firstName">First Name:</label>
+                <input type="text" class="form-control" id="firstName" placeholder="Enter first name" required>
+            </div>
+            <div class="form-group">
+                <label for="lastName">Last Name:</label>
+                <input type="text" class="form-control" id="lastName" placeholder="Enter last name" required>
+            </div>
+            <div class="form-group">
+                <label for="street">Street:</label>
+                <input type="text" class="form-control" id="street" placeholder="Enter street" required>
+            </div>
+            <div class="form-group">
+                <label for="address">Address:</label>
+                <input type="text" class="form-control" id="address" placeholder="Enter address" required>
+            </div>
+            <div class="form-group">
+                <label for="city">City:</label>
+                <input type="text" class="form-control" id="city" placeholder="Enter city" required>
+            </div>
+            <div class="form-group">
+                <label for="state">State:</label>
+                <input type="text" class="form-control" id="state" placeholder="Enter state" required>
+            </div>
+            <div class="form-group">
+                <label for="email">Email:</label>
+                <input type="email" class="form-control" id="email" placeholder="Enter email" required>
+            </div>
+            <div class="form-group">
+                <label for="phoneNumber">Phone Number:</label>
+                <input type="tel" class="form-control" id="phoneNumber" placeholder="Enter phone number" required>
+            </div>
+            <button type="submit" class="btn btn-primary">Submit</button>
+        </form>
+    </div>
+
+    <!-- Bootstrap JS -->
+    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.5.4/dist/umd/popper.min.js"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+    <script>
+        // Function to handle form submission
+        document.getElementById('addCustomerForm').addEventListener('submit', function(event) {
+            event.preventDefault(); // default form submission
+
+            //  user input
+            var uuid = document.getElementById('uuid').value;
+            var first_name = document.getElementById('firstName').value;
+            var last_name = document.getElementById('lastName').value;
+            var street = document.getElementById('street').value;
+            var address = document.getElementById('address').value;
+            var city = document.getElementById('city').value;
+            var state = document.getElementById('state').value;
+            var email = document.getElementById('email').value;
+            var phone = document.getElementById('phoneNumber').value;
+
+            // Create customer object
+            var customer = {
+                uuid: uuid,
+                first_name: first_name,
+                last_name: last_name,
+                street: street,
+                address: address,
+                city: city,
+                state: state,
+                email: email,
+                phone: phone
+            };
+
+            // Retrieve the bearer token from cookies
+            const token = getCookie('jwt');
+
+            // If token is not present, redirect to login page or handle as needed
+            if (!token) {
+                window.location.href = 'login.html'; // Redirect to login page
+                return;
+            }
+
+            // POST request to API to save customer data with the bearer token in headers
+            fetch('http://localhost:8080/home/api/create', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': 'Bearer ' + token
+                    },
+                    body: JSON.stringify(customer)
+                })
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error('Failed to add customer');
+                    }
+                    return response.json();
+                })
+                .then(data => {
+                    console.log('Customer added successfully:', data);
+                    // Redirect to index page or handle success as needed
+                    window.location.href = 'index.html';
+                })
+                .catch(error => {
+                    console.error('Error adding customer:', error);
+                    // Handle error as needed
+                    alert('Customer with the same email already exists in the database');
+                });
+        });
+
+        // Function to retrieve a cookie value by name
+        function getCookie(name) {
+            const cookies = document.cookie.split(';');
+            for (let i = 0; i < cookies.length; i++) {
+                const cookie = cookies[i].trim();
+                const cookieParts = cookie.split('=');
+                if (cookieParts[0] === name) {
+                    return cookieParts[1];
+                }
+            }
+            return null;
+        }
+    </script>
+</body>
+
+</html>
